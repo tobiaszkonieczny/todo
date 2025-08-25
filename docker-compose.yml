@@ -18,7 +18,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "8080:80"
+      - "8080:80"   
     depends_on:
       - db
 
@@ -27,7 +27,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8081:8081"
     depends_on:
       - db
     environment:
@@ -36,7 +36,6 @@ services:
       - DB_PASSWORD=todo_pass
       - DB_NAME=todo_db
       - DB_PORT=5432
-
 
 volumes:
   pgdata:
