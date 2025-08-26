@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/tobiaszkonieczny/todo.git/internal/middleware"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -31,10 +32,18 @@ func main() {
 	r := gin.Default()
 
 	// Endpointy CRUD
-	r.GET("/tasks", handlers.GetTasks)
-	r.POST("/tasks", handlers.CreateTask)
-	r.PUT("/tasks/:id", handlers.UpdateTask)
-	r.DELETE("/tasks/:id", handlers.DeleteTask)
+	api := r.Group("/tasks")
+	api.Use(middleware.JWTAuth())
+	{
+		api.GET("/", handlers.GetTasks)
+		api.POST("/", handlers.CreateTask)
+		api.PUT("/:id", handlers.UpdateTask)
+		api.DELETE("/:id", handlers.DeleteTask)
+	}
+
+	// Endpointy auth
+	r.POST("/auth/register", handlers.Register)
+	r.POST("/auth/login", handlers.Login)
 
 	// Swagger UI
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
