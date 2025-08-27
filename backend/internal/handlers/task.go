@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tobiaszkonieczny/todo.git/internal/models"
+	"github.com/tobiaszkonieczny/todo.git/internal/ws"
 )
 
 // GetTasks godoc
@@ -16,7 +18,13 @@ import (
 // @Router       /tasks [get]
 func GetTasks(c *gin.Context) {
 	var tasks []models.Task
-	models.DB.Find(&tasks)
+
+	// Preload attachments
+	if err := models.DB.Preload("Attachments").Find(&tasks).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, tasks)
 }
 
@@ -59,6 +67,9 @@ func CreateTask(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	msg := fmt.Sprintf(`{"event":"new_task","task_id":%d,"title":"%s"}`, task.ID, task.Title)
+	ws.Broadcast([]byte(msg))
 
 	c.JSON(http.StatusCreated, task)
 }

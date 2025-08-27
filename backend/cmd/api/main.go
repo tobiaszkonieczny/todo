@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/tobiaszkonieczny/todo.git/internal/middleware"
+	"github.com/tobiaszkonieczny/todo.git/internal/ws"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -46,6 +47,17 @@ func main() {
 		category.GET("/", handlers.GetCategories)
 		category.POST("/new", handlers.CreateCategory)
 	}
+	attachment := r.Group("/attachments")
+	attachment.Use(middleware.JWTAuth())
+	{
+		attachment.POST("/upload/:task_id", handlers.UploadAttachment)
+		attachment.GET("/download/:attachment_id", handlers.DownloadAttachment)
+	}
+
+	//Websocket
+	r.GET("/ws", func(c *gin.Context) {
+		ws.HandleWS(c.Writer, c.Request)
+	})
 
 	// Endpoints auth
 	r.POST("/auth/register", handlers.Register)
