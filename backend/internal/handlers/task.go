@@ -36,7 +36,30 @@ func CreateTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	models.DB.Create(&task)
+
+	//userId should be in gin context
+	val, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "user not found"})
+		return
+	}
+
+	userID := uint(val.(float64))
+	task.UserID = userID
+
+	if task.CategoryID != nil {
+		var category models.Category
+		if err := models.DB.First(&category, *task.CategoryID).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid category_id"})
+			return
+		}
+	}
+
+	if err := models.DB.Create(&task).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusCreated, task)
 }
 

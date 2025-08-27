@@ -17,33 +17,40 @@ import (
 
 // @title ToDo API
 // @version 1.0
-// @description API do zarządzania zadaniami (CRUD).
+// @description API for tasks management.
 // @host localhost:8081
 // @BasePath /
 func main() {
 	if err := godotenv.Load("configs/.env"); err != nil {
-		log.Println("⚠️  Brak pliku .env, używam zmiennych środowiskowych")
+		log.Println("⚠️ Missing env file, proceeding with system environment variables")
 	}
 
-	// Połączenie z bazą
+	// Invoke database connection
 	models.ConnectDatabase()
 
 	// Router Gin
 	r := gin.Default()
 
-	// Endpointy CRUD
+	// Endpoints CRUD
 	api := r.Group("/tasks")
 	api.Use(middleware.JWTAuth())
 	{
 		api.GET("/", handlers.GetTasks)
-		api.POST("/", handlers.CreateTask)
-		api.PUT("/:id", handlers.UpdateTask)
-		api.DELETE("/:id", handlers.DeleteTask)
+		api.POST("/new", handlers.CreateTask)
+		api.PUT("update/:id", handlers.UpdateTask)
+		api.DELETE("delete/:id", handlers.DeleteTask)
+	}
+	category := r.Group("/categories")
+	category.Use(middleware.JWTAuth())
+	{
+		category.GET("/", handlers.GetCategories)
+		category.POST("/new", handlers.CreateCategory)
 	}
 
-	// Endpointy auth
+	// Endpoints auth
 	r.POST("/auth/register", handlers.Register)
 	r.POST("/auth/login", handlers.Login)
+	r.POST("/auth/logout", handlers.Logout)
 
 	// Swagger UI
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

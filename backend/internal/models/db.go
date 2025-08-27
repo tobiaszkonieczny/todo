@@ -24,8 +24,8 @@ func ConnectDatabase() {
 		log.Fatal("Nie można połączyć z bazą:", err)
 	}
 
-	// MIGRACJE
-	err = DB.AutoMigrate(&User{}, &Task{})
+	// MIGRATIONS
+	err = DB.AutoMigrate(&User{}, &Category{}, &Task{})
 	if err != nil {
 		log.Fatal("AutoMigrate failed:", err)
 	}

@@ -74,9 +74,20 @@ func Login(c *gin.Context) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"exp":     time.Now().Add(time.Hour * 24).Unix(), //24h expiration
 	})
 
 	tokenString, _ := token.SignedString(jwtKey)
 	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+}
+
+// Logout godoc
+// @Summary Wylogowanie użytkownika
+// @Description Wylogowuje użytkownika (stateless, JWT token client-side)
+// @Tags auth
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Router /auth/logout [post]
+func Logout(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
 }
