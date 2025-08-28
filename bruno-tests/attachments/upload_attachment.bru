@@ -1,0 +1,34 @@
+meta {
+  name: upload_attachment
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/attachments/upload/4
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:multipart-form {
+  file: @file(attachments/test-file.txt)
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    const responseBody = res.getBody();
+    bru.setEnvVar("attachmentId", responseBody.attachment_id);
+  }
+}
+
+tests {
+  test("should upload attachment successfully", function() {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody()).to.have.property('message', 'file uploaded');
+    expect(res.getBody()).to.have.property('attachment_id');
+  });
+}

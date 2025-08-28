@@ -18,13 +18,14 @@ type Credentials struct {
 }
 
 // Register godoc
-// @Summary Rejestracja użytkownika
-// @Description Tworzy nowego użytkownika
+// @Summary Register new user
+// @Description Create a new user account with username and password. Password will be hashed before storing.
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param user body handlers.Credentials true "User credentials"
-// @Success 201 {object} map[string]string
+// @Param user body handlers.Credentials true "User registration credentials"
+// @Success 201 {object} map[string]string "User created successfully" example({"message": "user created"})
+// @Failure 400 {object} map[string]string "Bad request - invalid input" example({"error": "invalid JSON format"})
 // @Router /auth/register [post]
 func Register(c *gin.Context) {
 	var creds Credentials
@@ -45,14 +46,15 @@ func Register(c *gin.Context) {
 }
 
 // Login godoc
-// @Summary Logowanie użytkownika
-// @Description Loguje użytkownika i zwraca token JWT
+// @Summary User login
+// @Description Authenticate user with username and password. Returns JWT token for authenticated requests.
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param user body handlers.Credentials true "User credentials"
-// @Success 200 {object} map[string]string
-// @Failure 401 {object} map[string]string
+// @Param user body handlers.Credentials true "User login credentials"
+// @Success 200 {object} map[string]string "Login successful with JWT token" example({"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."})
+// @Failure 400 {object} map[string]string "Bad request - invalid input" example({"error": "invalid JSON format"})
+// @Failure 401 {object} map[string]string "Unauthorized - invalid credentials" example({"error": "invalid credentials"})
 // @Router /auth/login [post]
 func Login(c *gin.Context) {
 	var creds Credentials
@@ -82,11 +84,12 @@ func Login(c *gin.Context) {
 }
 
 // Logout godoc
-// @Summary Wylogowanie użytkownika
-// @Description Wylogowuje użytkownika (stateless, JWT token client-side)
+// @Summary User logout
+// @Description Logout user (stateless operation as JWT tokens are managed client-side). No server-side session invalidation needed.
 // @Tags auth
 // @Produce json
-// @Success 200 {object} map[string]string
+// @Security BearerAuth
+// @Success 200 {object} map[string]string "Logout successful" example({"message": "logged out"})
 // @Router /auth/logout [post]
 func Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "logged out"})

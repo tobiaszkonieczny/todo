@@ -11,6 +11,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	_ "github.com/tobiaszkonieczny/todo.git/docs"
+	_ "github.com/tobiaszkonieczny/todo.git/internal/handlers"
 
 	"github.com/tobiaszkonieczny/todo.git/internal/handlers"
 	"github.com/tobiaszkonieczny/todo.git/internal/models"
@@ -31,6 +32,7 @@ func main() {
 
 	// Router Gin
 	r := gin.Default()
+	r.Use(middleware.RequestLogger())
 
 	// Endpoints CRUD
 	api := r.Group("/tasks")

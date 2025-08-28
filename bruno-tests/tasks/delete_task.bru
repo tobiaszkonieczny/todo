@@ -1,0 +1,21 @@
+meta {
+  name: delete_task
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/tasks/delete/{{taskId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+tests {
+  test("should delete task successfully", function() {
+    expect(res.getStatus()).to.equal(204);
+  });
+}

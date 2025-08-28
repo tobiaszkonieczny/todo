@@ -1,0 +1,31 @@
+meta {
+  name: update_task
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/tasks/update/{{taskId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "title": "Complete API testing - UPDATED",
+    "description": "Set up Bruno tests for all endpoints - Updated description",
+    "completed": true
+  }
+}
+
+tests {
+  test("should update task successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.have.property('title', 'Complete API testing - UPDATED');
+    expect(res.getBody()).to.have.property('completed', true);
+  });
+}

@@ -1,0 +1,32 @@
+meta {
+  name: login_user
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "testuser",
+    "password": "testpassword123"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    const responseBody = res.getBody();
+    bru.setEnvVar("authToken", responseBody.token);
+  }
+}
+
+tests {
+  test("should login successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody()).to.have.property('token');
+  });
+}

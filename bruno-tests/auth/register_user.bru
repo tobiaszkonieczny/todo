@@ -1,0 +1,25 @@
+meta {
+  name: register_user
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "testuser",
+    "password": "testpassword123"
+  }
+}
+
+tests {
+  test("should register user successfully", function() {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody()).to.have.property('message', 'user created');
+  });
+}

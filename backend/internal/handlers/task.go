@@ -10,7 +10,7 @@ import (
 )
 
 // GetTasks godoc
-// @Summary      Get all tasks
+// @Summary      List of all tasks
 // @Description  Retrieve a list of all tasks
 // @Tags         tasks
 // @Produce      json

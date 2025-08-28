@@ -1,0 +1,22 @@
+meta {
+  name: download_attachment
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/attachments/download/{{attachmentId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+tests {
+  test("should download attachment successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getHeaders()['content-type']).to.exist;
+  });
+}

@@ -25,7 +25,7 @@ func ConnectDatabase() {
 	}
 
 	// MIGRATIONS
-	err = DB.AutoMigrate(&User{}, &Category{}, &Task{}, &Attachment{})
+	err = DB.AutoMigrate(&User{}, &Category{}, &Task{}, &Attachment{}, Log{})
 	if err != nil {
 		log.Fatal("AutoMigrate failed:", err)
 	}

@@ -1,7 +1,43 @@
 basePath: /
 definitions:
+  handlers.Credentials:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  models.Attachment:
+    properties:
+      content_type:
+        type: string
+      created_at:
+        type: string
+      file_name:
+        type: string
+      id:
+        type: integer
+      size:
+        type: integer
+      task_id:
+        description: foreign key
+        type: integer
+    type: object
+  models.Category:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   models.Task:
     properties:
+      attachments:
+        items:
+          $ref: '#/definitions/models.Attachment'
+        type: array
+      category_id:
+        type: integer
       completed:
         type: boolean
       created_at:
@@ -12,14 +48,199 @@ definitions:
         type: string
       updated_at:
         type: string
+      user_id:
+        description: <-- foreign key
+        type: integer
     type: object
 host: localhost:8081
 info:
   contact: {}
-  description: API do zarządzania zadaniami (CRUD).
+  description: API for tasks management.
   title: ToDo API
   version: "1.0"
 paths:
+  /attachments/{attachment_id}/download:
+    get:
+      description: Download a file attachment by its ID. Returns the raw file content
+        with appropriate content type.
+      parameters:
+      - description: Attachment ID to download
+        in: path
+        name: attachment_id
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      - image/jpeg
+      - image/png
+      - application/pdf
+      - text/plain
+      responses:
+        "200":
+          description: File content
+          schema:
+            type: file
+        "404":
+          description: 'Attachment not found" example({"error": "attachment not found"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Download file attachment
+      tags:
+      - attachments
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with username and password. Returns JWT token
+        for authenticated requests.
+      parameters:
+      - description: User login credentials
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.Credentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Login successful with JWT token" example({"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: 'Bad request - invalid input" example({"error": "invalid JSON
+            format"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'Unauthorized - invalid credentials" example({"error": "invalid
+            credentials"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User login
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Logout user (stateless operation as JWT tokens are managed client-side).
+        No server-side session invalidation needed.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Logout successful" example({"message": "logged out"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: User logout
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account with username and password. Password
+        will be hashed before storing.
+      parameters:
+      - description: User registration credentials
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.Credentials'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'User created successfully" example({"message": "user created"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: 'Bad request - invalid input" example({"error": "invalid JSON
+            format"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register new user
+      tags:
+      - auth
+  /categories:
+    get:
+      description: Retrieve a list of all available categories for organizing tasks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of categories retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/models.Category'
+            type: array
+        "500":
+          description: 'Internal server error" example({"error": "database error"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new category for organizing tasks. Category name must
+        be unique.
+      parameters:
+      - description: Category data (only name field is required)
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/models.Category'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Category created successfully
+          schema:
+            $ref: '#/definitions/models.Category'
+        "400":
+          description: 'Bad request - invalid input" example({"error": "invalid JSON
+            format"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Internal server error - possibly duplicate name" example({"error":
+            "category name already exists"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create new category
+      tags:
+      - categories
   /tasks:
     get:
       description: Retrieve a list of all tasks
@@ -32,7 +253,7 @@ paths:
             items:
               $ref: '#/definitions/models.Task'
             type: array
-      summary: Get all tasks
+      summary: List of all tasks
       tags:
       - tasks
     post:
@@ -123,4 +344,54 @@ paths:
       summary: Update a task
       tags:
       - tasks
+  /tasks/{task_id}/attachments:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a file attachment to a specific task. The file will be stored
+        in the database and associated with the task.
+      parameters:
+      - description: Task ID to attach file to
+        in: path
+        name: task_id
+        required: true
+        type: integer
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'File uploaded successfully" example({"message": "file uploaded",
+            "attachment_id": 123})'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 'Bad request - no file uploaded" example({"error": "no file
+            uploaded"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'Task not found" example({"error": "task not found"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Internal server error" example({"error": "database error"})'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload file attachment to a task
+      tags:
+      - attachments
 swagger: "2.0"
