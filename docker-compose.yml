@@ -10,6 +10,8 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - app-net
 
   pgadmin:
     image: dpage/pgadmin4
@@ -21,6 +23,8 @@ services:
       - "8080:80"   
     depends_on:
       - db
+    networks:
+      - app-net
 
   api:
     build:
@@ -36,6 +40,30 @@ services:
       - DB_PASSWORD=todo_pass
       - DB_NAME=todo_db
       - DB_PORT=5432
+    networks:
+      - app-net
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf # We map our custom config file to the container
+      - ./nginx/certs:/etc/nginx/certs #The same for the certificates
+    depends_on:
+      - api
+    networks:
+      - app-net
+      # We connect nginx to the same network as the api service
+      # This way, nginx can access the api service by its service name
+      #instead of using localhost or an IP address
+
 
 volumes:
   pgdata:
+
+networks:
+  app-net:
+    driver: bridge
+

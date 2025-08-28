@@ -1,27 +1,27 @@
-# --- STAGE 1: Budowanie aplikacji ---
+# --- STAGE 1: Building app ---
 FROM golang:1.24 AS builder
 
-# Ustaw katalog roboczy w kontenerze
+# Set working directory
 WORKDIR /app
 
-# Skopiuj pliki modów i pobierz zależności
+# Copy go.mod and go.sum files and download dependencies
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 
-# Skopiuj resztę kodu
+# Copy the rest of the application code
 COPY backend/ .
 
-# Zbuduj binarkę z katalogu cmd/api
+# Build the application binary
 RUN go build -o main ./cmd/api
 
-# --- STAGE 2: Minimalny obraz uruchomieniowy ---
+# --- STAGE 2: Minimal runtime---
 FROM debian:12-slim
 
 WORKDIR /app
 COPY --from=builder /app/main .
 
-# Otwórz port dla API
+# Open port 8080
 EXPOSE 8080
 
-# Domyślne polecenie
+# Define the command to run the application
 CMD ["./main"]
