@@ -6,7 +6,10 @@ services:
       POSTGRES_USER: todo_user
       POSTGRES_PASSWORD: todo_pass
       POSTGRES_DB: todo_db
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
     volumes:
+      - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
