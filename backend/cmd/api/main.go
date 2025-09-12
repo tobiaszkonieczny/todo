@@ -1,10 +1,7 @@
 package main
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"github.com/tobiaszkonieczny/todo.git/internal/middleware"
 	"github.com/tobiaszkonieczny/todo.git/internal/ws"
 
@@ -23,9 +20,6 @@ import (
 // @host localhost:8081
 // @BasePath /
 func main() {
-	if err := godotenv.Load("configs/.env"); err != nil {
-		log.Println("⚠️ Missing env file, proceeding with system environment variables")
-	}
 
 	// Invoke database connection
 	models.ConnectDatabase()
