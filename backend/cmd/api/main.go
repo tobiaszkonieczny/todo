@@ -64,6 +64,6 @@ func main() {
 	// Swagger UI
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// Start serwera
+	// Server run
 	r.Run(":8081")
 }
