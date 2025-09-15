@@ -1,0 +1,23 @@
+meta {
+  name: new_attachment
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/attachments/upload/:task_id
+  body: multipartForm
+  auth: inherit
+}
+
+params:path {
+  task_id: 3
+}
+
+body:multipart-form {
+  file: @file(/Users/I758760/Downloads/digital-art-isolated-house.jpg)
+}
+
+settings {
+  encodeUrl: true
+}

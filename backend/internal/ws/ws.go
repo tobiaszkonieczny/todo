@@ -11,7 +11,7 @@ import (
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true // Allows all origins, adjust for production use
-	},
+	}, // In production, we could check the origin here
 }
 
 // Hub maintains the set of active clients and broadcasts messages to the clients.
@@ -27,7 +27,7 @@ var hub = Hub{
 	clients: make(map[*websocket.Conn]bool), // initialize the clients map
 }
 
-// New connection handler
+// HandleWS New connection handler
 func HandleWS(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -51,7 +51,7 @@ func HandleWS(w http.ResponseWriter, r *http.Request) {
 	hub.mu.Unlock()
 }
 
-// Function to broadcast messages to all connected clients
+// Broadcast Function to broadcast messages to all connected clients
 func Broadcast(message []byte) {
 	hub.mu.Lock()
 	defer hub.mu.Unlock()

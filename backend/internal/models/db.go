@@ -21,10 +21,11 @@ func ConnectDatabase() {
 	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Nie można połączyć z bazą:", err)
+		log.Fatal("Could not connect to database:", err)
 	}
 
 	// MIGRATIONS
+	// AutoMigrate will create tables, missing foreign keys, constraints, columns and indexes.
 	err = DB.AutoMigrate(&User{}, &Category{}, &Task{}, &Attachment{}, Log{})
 	if err != nil {
 		log.Fatal("AutoMigrate failed:", err)

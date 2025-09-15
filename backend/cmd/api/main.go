@@ -26,6 +26,7 @@ func main() {
 
 	// Router Gin
 	r := gin.Default()
+	//logs interceptor
 	r.Use(middleware.RequestLogger())
 
 	// Endpoints CRUD

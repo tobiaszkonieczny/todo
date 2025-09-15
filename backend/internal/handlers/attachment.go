@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"mime/multipart"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -41,7 +42,12 @@ func UploadAttachment(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	defer f.Close()
+	defer func(f multipart.File) { // ensure file is closed after reading (wrapping func returns)
+		err := f.Close()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+	}(f)
 
 	content := make([]byte, file.Size)
 	_, err = f.Read(content)
@@ -58,7 +64,7 @@ func UploadAttachment(c *gin.Context) {
 		Size:        file.Size,
 	}
 
-	if err := models.DB.Create(&attachment).Error; err != nil {
+	if err := models.DB.Create(&attachment).Error; err != nil { // save attachment to DB and simultaneously handle errors
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

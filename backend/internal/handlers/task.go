@@ -17,6 +17,8 @@ import (
 // @Success      200  {array}   models.Task
 // @Router       /tasks [get]
 func GetTasks(c *gin.Context) {
+	//gin context is kinda container for request and response
+	//it enables dataflow between middleware and handlers
 	var tasks []models.Task
 
 	// Preload attachments

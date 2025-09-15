@@ -1,0 +1,21 @@
+meta {
+  name: new_task
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/tasks/new
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "task22"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

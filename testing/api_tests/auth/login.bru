@@ -1,0 +1,33 @@
+meta {
+  name: login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "user",
+    "password": "password"
+  }
+}
+
+script:post-response {
+  let jsonResponse = res.body;
+  console.log(jsonResponse)
+  if (jsonResponse.token) {
+      bru.setEnvVar("token", jsonResponse.token);
+      console.log("Token has been set: " + jsonResponse.token);
+  } else {
+      console.log("Token not found or request failed.");
+  }
+}
+
+settings {
+  encodeUrl: true
+}

@@ -9,7 +9,7 @@ services:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
     volumes:
-      - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backend/migrations/001_init.sql:/docker-entrypoint-initdb.d/init.sql #Initialize the database with a script
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
@@ -55,7 +55,7 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf # We map our custom config file to the container
       - ./nginx/certs:/etc/nginx/certs #The same for the certificates
     depends_on:
-      - api
+      - api # We make sure the api service is started before nginx
     networks:
       - app-net
       # We connect nginx to the same network as the api service

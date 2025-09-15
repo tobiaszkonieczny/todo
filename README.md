@@ -47,8 +47,8 @@ The application is connected to PostgreSQL database using Gorm ORM. The database
 ## Database
 Database is initialized via script located in **/db/init.sql**. The script is executed when the database container is started for the first time.
 
-### Database ERD diagram
-![ERD Diagram](/docs/erd_diagram%20.png)
+### Database diagram
+![Diagram](/docs/diagram%20.png)
 
 
 ## Features

@@ -1,0 +1,15 @@
+meta {
+  name: get_all
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/categories
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
